@@ -1,2 +1,2 @@
 # Birthday-Wishesshes
-basic birthday by html
+basic birthday by HTML code
