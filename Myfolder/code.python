@@ -1,0 +1,47 @@
+import socket
+import requests
+import logging
+import time
+
+# Configure logging
+logging.basicConfig(filename='port_url_status.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+# List of ports and URLs to check
+ports = [8080, 7070, 443]
+urls = ['http://localhost:8080', 'http://localhost:7070', 'https://localhost:443']
+
+def check_port(port):
+    """Check if a port is open on localhost."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        result = sock.connect_ex(('localhost', port))
+        return result == 0
+
+def check_url(url):
+    """Check if a URL is reachable."""
+    try:
+        response = requests.get(url, timeout=5)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
+
+def monitor():
+    """Monitor specified ports and URLs."""
+    while True:
+        for port in ports:
+            if not check_port(port):
+                logging.info(f"Port {port} is down.")
+            else:
+                logging.info(f"Port {port} is up.")
+
+        for url in urls:
+            if not check_url(url):
+                logging.info(f"URL {url} is down.")
+            else:
+                logging.info(f"URL {url} is up.")
+
+        # Wait for a specified interval before checking again
+        time.sleep(60)  # Check every 60 seconds
+
+if __name__ == "__main__":
+    monitor()
